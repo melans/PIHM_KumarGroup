@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -A UTAM0008
+#PBS -N mejob
+#PBS -l walltime=12:00:00
+#PBS -q regular
+#PBS -M melans@tamu.edu
+#PBS -m abe
+#PBS -l select=1:ncpus=1:mpiprocs=1
+
+calib="`ls *calib`"
+rvr="`ls *x1`"
+gw="`ls *GW`"
+
+./pihm && mail -s "`wc -l $rvr` - $PWD" -a $calib -a $rvr -a $gw melans@tamu.edu < .
+
