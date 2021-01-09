@@ -127,52 +127,86 @@ int main(int argc, char *argv[])
 	char *filename,*outfilename;
         char tmpLname[25][12]={".NetP",".IS",".surf",".unsat",".GW",".et0",".et1",".et2",".P",".Rech",".unsatT",".RechT",".stage",".subriv"};
 	/* Project Input Name */
-	if(argc!=2)
-		{
-		iproj=fopen("projectName.txt","r");
-		if(iproj==NULL)
-			{
-			printf("\t\nUsage ./pihm project_name");
-			printf("\t\n         OR              ");
-			printf("\t\nUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it");
-			exit(0);
-			}
-		else
-			{
-			filename = (char *)malloc(15*sizeof(char));
-			fscanf(iproj,"%s",filename);
-			}
-		}
-	else
-		{
-  		/* get user specified file name in command line */
-    		filename = (char *)malloc(strlen(argv[1])*sizeof(char));
-		strcpy(filename,argv[1]);
-		}
 
-	/* Project Output File Location */
-        if(argc!=2)
-                {
-                oproj=fopen("outputPath.txt","r");
-                if(oproj==NULL)
-                        {
-                        printf("\t\nUsage ./pihm outputPath");
-                        printf("\t\n         OR              ");
-                        printf("\t\nUsage ./pihm, and have a file in the current directory named outputPath.txt with the project name in it");
-                        exit(0);
-                        }
-                else
-                        {
-                        outfilename = (char *)malloc(100*sizeof(char));
-                        fscanf(oproj,"%s",outfilename);
-                        /* Create the output directory if it does not exist*/
-			struct stat st = {0};
-			if (stat(outfilename, &st) == -1) 
-				{
-    				mkdir(outfilename, 0700);
-				}
+
+
+
+// modified by https://github.com/melans on 01/09/2021 from the original code 
+
+printf("argc => %s 2 \n",(argc!=2)?"NE":"EQ");
+        switch (argc)
+        {
+        case 1: // if 0 args
+            // read input file
+            iproj=fopen("projectName.txt","r");
+            if(iproj==NULL){
+                printf("\t\nUsage ./pihm project_name");
+                printf("\t\n         OR              ");
+                printf("\t\nUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it\n");
+                exit(0);
+            }else{
+                filename = (char *)malloc(15*sizeof(char));
+                fscanf(iproj,"%s",filename);
+            }
+
+            // read output file
+            oproj=fopen("outputPath.txt","r");
+            if(oproj==NULL){
+                printf("\t\nUsage ./pihm outputPath");
+                printf("\t\n         OR              ");
+                printf("\t\nUsage ./pihm, and have a file in the current directory named outputPath.txt with the project name in it\n");
+                exit(0);
+            }else{
+                outfilename = (char *)malloc(100*sizeof(char));
+                fscanf(oproj,"%s",outfilename);
 			}
+
+            break;
+        case 2: // if 1 arg
+            iproj=fopen("projectName.txt","r");
+            if(iproj==NULL){    // if no input file then read arg as input
+                filename = (char *)malloc(strlen(argv[1])*sizeof(char));
+                strcpy(filename,argv[1]);
+                oproj=fopen("outputPath.txt","r");
+                if(oproj==NULL){
+                    printf("\t\nUsage ./pihm outputPath");
+                    printf("\t\n         OR              ");
+                    printf("\t\nUsage ./pihm, and have a file in the current directory named outputPath.txt with the project name in it\n");
+                    exit(0);
+                }else{
+                    outfilename = (char *)malloc(100*sizeof(char));
+                    fscanf(oproj,"%s",outfilename);
                 }
+            }else{  // if there's input file then read arg as output
+                filename = (char *)malloc(15*sizeof(char));
+                fscanf(iproj,"%s",filename);
+                outfilename = (char *)malloc(strlen(argv[1])*sizeof(char));
+                strcpy(outfilename,argv[1]);
+                // fscanf(oproj,"%s",outfilename);
+            }
+
+            break;
+        case 3: // if 2 args
+            // arg 1 = input
+            filename = (char *)malloc(strlen(argv[1])*sizeof(char));
+            strcpy(filename,argv[1]);
+            // arg 2 = output
+            outfilename = (char *)malloc(strlen(argv[2])*sizeof(char));
+            strcpy(outfilename,argv[2]);
+            break;
+        }
+printf("infilename = %s \n",filename);
+printf("outfilename = %s \n",outfilename);
+        /* Create the output directory if it does not exist*/
+        struct stat st = {0};
+        if (stat(outfilename, &st) == -1) {
+            mkdir(outfilename, 0700);
+        }
+
+// end of https://github.com/melans modifications
+
+	
+	
 
   	/* allocate memory for model data structure */
   	mData = (Model_Data)malloc(sizeof *mData);
